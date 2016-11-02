@@ -377,6 +377,24 @@ class PersonalName(Base):
     )
     citation = relation(Citation, backref=backref('personal_names', order_by=last_name, cascade="all, delete-orphan"))
 
+class PM_to_PMC(Base):
+    __tablename__ = 'tbl_pm_to_pmc'
+    pmcid             = Column(VARCHAR(10), nullable=False, index=True)
+    fk_pmid           = Column(INTEGER, nullable=False, index=True)
+    text_path         = Column(VARCHAR(50))
+
+    def __init__(self):
+        self.fk_pmid
+        self.pmcid
+
+    def __repr__(self):
+        return "PMID %s equal PMCID %s" % (self.fk_pmid, self.pmcid)
+
+    __table_args__ = (
+        ForeignKeyConstraint(['fk_pmid'], [SCHEMA+'.tbl_medline_citation.pmid'], onupdate="CASCADE", ondelete="CASCADE", name="fk1_pm_to_pmc"),
+        PrimaryKeyConstraint('pmcid'),
+        {'schema': SCHEMA}
+    )    
 
 class OtherAbstract(Base):
     __tablename__ = "tbl_other_abstract"
@@ -737,7 +755,7 @@ def create_tables(db):
         Base.metadata.create_all(engine)
 
     except:
-        print "Can't create table"
+        print("Can't create table")
         raise
 
 
