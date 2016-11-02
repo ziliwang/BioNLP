@@ -1,7 +1,7 @@
 # BioNLP-GDV
 ## literature resource
--.   PubMeb( the literature frame)
--.   PMC(the free text)
+- PubMeb( the literature frame)
+- PMC(the free text)
 ### 1. PubMeb XML to PostgreSQL
   PubMedPortable Toolkit: PubMedDB.py and PubMedParser.py
 ### 2. Padding PMCID by NCBI API
