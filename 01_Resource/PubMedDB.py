@@ -74,7 +74,7 @@ class Citation(Base):
         CheckConstraint("article_author_list_comp_yn IN ('Y', 'N', 'y', 'n')", name='ck4_medline_citation'),
         CheckConstraint("data_bank_list_complete_yn IN ('Y', 'N', 'y', 'n')", name='ck5_medline_citation'),
         CheckConstraint("grant_list_complete_yn IN ('Y', 'N', 'y', 'n')", name='ck6_medline_citation'),
-        {'schema': SCHEMA} 
+        {'schema': SCHEMA}
     )
 
 
@@ -97,7 +97,7 @@ class PMID_File_Mapping(Base):
         ForeignKeyConstraint(['id_file','xml_file_name'], [SCHEMA+'.tbl_xml_file.id',SCHEMA+'.tbl_xml_file.xml_file_name'], onupdate="CASCADE", ondelete="CASCADE", name='fk3_pmids_in_file'),
         ForeignKeyConstraint(['fk_pmid'], [SCHEMA+'.tbl_medline_citation.pmid'], onupdate="CASCADE", ondelete="CASCADE", name="fk2_pmids_in_file"),
         PrimaryKeyConstraint( 'fk_pmid'),
-        {'schema': SCHEMA} 
+        {'schema': SCHEMA}
     )
 
 
@@ -125,7 +125,7 @@ class XMLFile(Base):
 
     __table_args__  = (
         PrimaryKeyConstraint('id','xml_file_name'),
-        {'schema': SCHEMA} 
+        {'schema': SCHEMA}
     )
 
 
@@ -383,9 +383,10 @@ class PM_to_PMC(Base):
     fk_pmid           = Column(INTEGER, nullable=False, index=True)
     text_path         = Column(VARCHAR(50))
 
-    def __init__(self):
-        self.fk_pmid
-        self.pmcid
+    def __init__(self, pmcid, fk_pmid, text_path):
+        self.fk_pmid = pmcid
+        self.pmcid = fk_pmid
+        self.text_path = text_path
 
     def __repr__(self):
         return "PMID %s equal PMCID %s" % (self.fk_pmid, self.pmcid)
@@ -394,7 +395,7 @@ class PM_to_PMC(Base):
         ForeignKeyConstraint(['fk_pmid'], [SCHEMA+'.tbl_medline_citation.pmid'], onupdate="CASCADE", ondelete="CASCADE", name="fk1_pm_to_pmc"),
         PrimaryKeyConstraint('pmcid'),
         {'schema': SCHEMA}
-    )    
+    )
 
 class OtherAbstract(Base):
     __tablename__ = "tbl_other_abstract"
@@ -769,4 +770,3 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
     init(options.database)
-

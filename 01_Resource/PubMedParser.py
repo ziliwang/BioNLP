@@ -62,7 +62,7 @@ class MedlineParser:
         context = iter(context)
 
         # get the root element
-        event, root = next(context)
+        event, root = context.next()
 
         DBCitation = PubMedDB.Citation()
         DBJournal = PubMedDB.Journal()
@@ -114,7 +114,7 @@ class MedlineParser:
                         # Manually deleting entries is possible (with PGAdmin3 or via command-line), e.g.:
                         # DELETE FROM pubmed.tbl_medline_citation WHERE pmid = 25005691;
                         if same_pmid:
-                            print("Article already in database - " + str(same_pmid[0]) + "Continuing with next PubMed-ID")
+                            print "Article already in database - " + str(same_pmid[0]) + "Continuing with next PubMed-ID"
                             DBCitation = PubMedDB.Citation()
                             DBJournal = PubMedDB.Journal()
                             elem.clear()
@@ -196,7 +196,7 @@ class MedlineParser:
                             temp_year = DBJournal.medline_date[0:4]
                             DBJournal.pub_date_year = temp_year
                         except:
-                            print(_file, " not able to cast first 4 letters of medline_date ", temp_year)
+                            print _file, " not able to cast first 4 letters of medline_date ", temp_year
                 
                 
                 #if there is the attribute ArticleDate, month and day are given
@@ -491,18 +491,18 @@ class MedlineParser:
                             if child_AbstractText.tag == "AbstractText" and child_AbstractText.text != None:
                             #if child_AbstractText.tag == "AbstractText": # would give an error!
                                 # no label - this case should not happen with multiple AbstractText-Tags:
-                                if len(list(child_AbstractText.items())) == 0:
+                                if len(child_AbstractText.items()) == 0:
                                     temp_abstract_text +=child_AbstractText.text + "\n"
                                 # one label or the NlmCategory - first index has to be zero:
-                                if len(list(child_AbstractText.items())) == 1:
+                                if len(child_AbstractText.items()) == 1:
                                     # filter for the wrong label "UNLABELLED" - usually contains the text "ABSTRACT: - not used: 
-                                    if list(child_AbstractText.items())[0][1] == "UNLABELLED":
+                                    if child_AbstractText.items()[0][1] == "UNLABELLED":
                                         temp_abstract_text += child_AbstractText.text + "\n"
                                     else:
-                                        temp_abstract_text += list(child_AbstractText.items())[0][1] + ":\n" + child_AbstractText.text + "\n"
+                                        temp_abstract_text += child_AbstractText.items()[0][1] + ":\n" + child_AbstractText.text + "\n"
                                 # label and NlmCategory - take label - first index has to be one:
-                                if len(list(child_AbstractText.items())) == 2:
-                                    temp_abstract_text += list(child_AbstractText.items())[1][1] + ":\n" + child_AbstractText.text + "\n"    
+                                if len(child_AbstractText.items()) == 2:
+                                    temp_abstract_text += child_AbstractText.items()[1][1] + ":\n" + child_AbstractText.text + "\n"    
                     # if there is only one AbstractText-Tag ("usually") - no labels used:
                     if elem.find("AbstractText") != None and len(elem.findall("AbstractText")) == 1:
                         temp_abstract_text = elem.findtext("AbstractText")
@@ -585,8 +585,8 @@ def _start_parser(path):
     """
         Used to start MultiProcessor Parsing
     """
-    print(path, '\tpid:', os.getpid())
-    print('start parser')
+    print path, '\tpid:', os.getpid()
+    print 'start parser'
     p = MedlineParser(path,db)
     s = p._parse()
     return path
@@ -617,12 +617,12 @@ def run(medline_path, clean, start, end, PROCESSES):
     #res = result.get()
     #without multiprocessing:
     for path in paths:
-        print(path)
+        print path
         _start_parser(path)
 
-    print("######################")
-    print("###### Finished ######")
-    print("######################")
+    print "######################"
+    print "###### Finished ######"
+    print "######################"
 
 
 if __name__ == "__main__":
@@ -656,5 +656,5 @@ if __name__ == "__main__":
     #end time programme 
     end = time.asctime()
 
-    print("programme started - " + start)
-    print("programme ended - " + end)
+    print "programme started - " + start
+    print "programme ended - " + end
