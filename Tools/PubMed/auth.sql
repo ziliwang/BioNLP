@@ -1,0 +1,2 @@
+CREATE DATABASE fetch_db;
+GRANT ALL PRIVILEGES ON DATABASE fetch_db to parser;
