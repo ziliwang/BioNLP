@@ -42,4 +42,4 @@ POU3F4| OTC
 SIPR2|S1PR2
 PAX3| SOX10
 
-有俩文件格式与预期格式不一致：SOX10, PAX3
+有俩文件格式与预期格式不一致：SOX10, PAX3, POU3F4

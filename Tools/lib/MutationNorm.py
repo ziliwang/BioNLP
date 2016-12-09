@@ -59,7 +59,7 @@ def transvar_bath_query(fl, thread_num=40):
         thread.start()
     for thread in threads:
         thread.join()
-    with open('transvar_batch.out') as f:
+    with open('transvar_batch.out', 'w') as f:
         while not outqueue.empty():
             out = outqueue.get()
             for i in out:
