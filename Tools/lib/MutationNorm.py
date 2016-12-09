@@ -251,9 +251,10 @@ def logic_part(row, dic, genename, f):
             if re.search(i[0], row[5].value):
                 check_sw = True
                 try:
-                    if (re.sub('chr', '', i[1], re.IGNORECASE) ==
-                            re.sub('chr', '', str(row[1].value))) and (
-                              int(i[2]) == int(row[2].value)) and (
+                    if (re.sub('chr', '', i[1], flags=re.IGNORECASE) ==
+                            re.sub('chr', '', str(row[1].value),
+                                   flags=re.IGNORECASE)) and (
+                            int(i[2]) == int(row[2].value)) and (
                                 i[3] == row[3].value) and (
                                   i[4] == row[4].value):
                         writeh([genename, 'PASS'] + i[1:] +
