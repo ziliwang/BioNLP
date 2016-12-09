@@ -191,9 +191,9 @@ def samtools_check(fl):
                                     mutation_reg[4])
         elif mutation_reg[0] == 'del-short':
             mutation_reg[1] = mutation_reg[1] - 1
+            mutation_reg[3] = mutation_reg[2]
             mutation_reg[2] = mutation_reg[2] +\
                 query(mutation_reg[1], mutation_reg[1], mutation_reg[4])
-            mutation_reg[3] = mutation_reg[2]
         else:
             pass
     out = open('transed.json', 'w')
