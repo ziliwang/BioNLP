@@ -289,22 +289,31 @@ def writeh(ls, f):
 
 
 def vcflization(txtdir):
-    '''input dir and fix string and output into target dir'''
+    '''change all mutation description into a vcf-support format, and I called
+    'vcflization'. This function batch process the txt format input, and output
+    same txt file with vcflization and recompare the position, chr, ref, ale
+    info.'''
     for root, dirs, files in os.walk(txtdir):
         for fn in files:
             if re.search('txt$', fn):
                 if not os.path.exists(os.path.join(root, 'vcflization')):
                     os.makedirs(os.path.join(root, 'vcflization'))
                 with open(os.path.join(root, fn), 'r') as infh:
-                    with open(os.path.join(root, 'vcflization', fn)) as outfh:
+                    with open(os.path.join(root, 'vcflization', fn), 'w'
+                              ) as outfh:
                         for line in [i.split('\t') for i in
                                      infh.read().split('\n') if i]:
-                            line[7:11] = uname(line[2], line[7:11])
+                            line[7:11] = normalization(line[2], line[7:11])
                             line[1] = recompare(line[1], line[7:11], line[2:6])
-                            outfh.write(line + '\n')
+                            outfh.write('\t'.join(line) + '\n')
 
 
-def uname(ichr, ls):
+def normalization(ichr, ls):
+    """convert format into vcf-support format, host a reference chr which
+    is used to point the chr when chr info unavail in origin.
+    input: ref_chr, (chr, pos, ref, ale)
+    output: (chr, pos, ref, ale)
+    """
     chr, pos, ref, ale = ls
     chr_reg = re.search('([0-9,M,m]+)', chr)
     if chr_reg:
@@ -319,12 +328,12 @@ def uname(ichr, ls):
                 before = query(before_pos, before_pos, chr)
                 return(chr, before_pos, before, before + ale)
             else:
-                # default after
+                # default insert after pos
                 before_pos = pos_reg.group(1)
                 before = query(before_pos, before_pos, chr)
                 return(chr, before_pos, before, before + ale)
-        elif ale == '-':
-            before_pos = pos_reg.group(1) - 1
+        elif ale == '-':  # default pos is the start del site
+            before_pos = str(int(pos_reg.group(1)) - 1)
             before = query(before_pos, before_pos, chr)
             return(chr, before_pos, before + ref, before)
         else:
@@ -334,9 +343,13 @@ def uname(ichr, ls):
 
 
 def recompare(status, ls, ils):
+    '''compare the two mutation info with previous kown status. When status is
+    'FAILED', start comparing and re-compute status, otherwise, return origin
+    status
+    '''
     chr, pos, ref, ale = ls
     ichr, ipos, iref, iale = ils
-    if chr == ichr and pos == ipos and ref == iref and ale == iale and (
-                            status == 'FAILED'):
+    if chr == ichr and str(pos) == str(ipos) and ref == iref and (
+                ale == iale) and status == 'FAILED':
         return 'FAILED'
     return status
