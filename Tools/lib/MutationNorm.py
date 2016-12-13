@@ -286,3 +286,57 @@ def writeh(ls, f):
     ls = [str(i) if i else 'Null' for i in ls]
     ls = [re.sub('\t', '\s', i) for i in ls]
     f.write('\t'.join(ls).replace('\n', ' ') + '\n')
+
+
+def vcflization(txtdir):
+    '''input dir and fix string and output into target dir'''
+    for root, dirs, files in os.walk(txtdir):
+        for fn in files:
+            if re.search('txt$', fn):
+                if not os.path.exists(os.path.join(root, 'vcflization')):
+                    os.makedirs(os.path.join(root, 'vcflization'))
+                with open(os.path.join(root, fn), 'r') as infh:
+                    with open(os.path.join(root, 'vcflization', fn)) as outfh:
+                        for line in [i.split('\t') for i in
+                                     infh.read().split('\n') if i]:
+                            line[7:11] = uname(line[2], line[7:11])
+                            line[1] = recompare(line[1], line[7:11], line[2:6])
+                            outfh.write(line + '\n')
+
+
+def uname(ichr, ls):
+    chr, pos, ref, ale = ls
+    chr_reg = re.search('([0-9,M,m]+)', chr)
+    if chr_reg:
+        chr = 'chr' + chr_reg.group(1)
+    else:
+        chr = ichr
+    pos_reg = re.search('(\d+)', str(pos))
+    if pos_reg:
+        if ref == '-':  # insert
+            if len(pos_reg.groups()) == 2:
+                before_pos = pos_reg.group(1)
+                before = query(before_pos, before_pos, chr)
+                return(chr, before_pos, before, before + ale)
+            else:
+                # default after
+                before_pos = pos_reg.group(1)
+                before = query(before_pos, before_pos, chr)
+                return(chr, before_pos, before, before + ale)
+        elif ale == '-':
+            before_pos = pos_reg.group(1) - 1
+            before = query(before_pos, before_pos, chr)
+            return(chr, before_pos, before + ref, before)
+        else:
+            return(chr, pos, ref, ale)
+    else:
+        return(chr, pos, ref, ale)
+
+
+def recompare(status, ls, ils):
+    chr, pos, ref, ale = ls
+    ichr, ipos, iref, iale = ils
+    if chr == ichr and pos == ipos and ref == iref and ale == iale and (
+                            status == 'FAILED'):
+        return 'FAILED'
+    return status
