@@ -303,7 +303,9 @@ def vcflization(txtdir):
                               ) as outfh:
                         for line in [i.split('\t') for i in
                                      infh.read().split('\n') if i]:
-                            line[7:11] = normalization(line[2], line[7:11])
+                            line = line[:7] + \
+                                   normalization(line[2], line[7:11]) + \
+                                   line[7:]
                             line[1] = recompare(line[1], line[7:11], line[2:6])
                             outfh.write('\t'.join(line) + '\n')
 
@@ -326,20 +328,20 @@ def normalization(ichr, ls):
             if len(pos_reg.groups()) == 2:
                 before_pos = pos_reg.group(1)
                 before = query(before_pos, before_pos, chr)
-                return(chr, before_pos, before, before + ale)
+                return([chr, before_pos, before, before + ale])
             else:
                 # default insert after pos
                 before_pos = pos_reg.group(1)
                 before = query(before_pos, before_pos, chr)
-                return(chr, before_pos, before, before + ale)
+                return([chr, before_pos, before, before + ale])
         elif ale == '-':  # default pos is the start del site
             before_pos = str(int(pos_reg.group(1)) - 1)
             before = query(before_pos, before_pos, chr)
-            return(chr, before_pos, before + ref, before)
+            return([chr, before_pos, before + ref, before])
         else:
-            return(chr, pos, ref, ale)
+            return([chr, pos, ref, ale])
     else:
-        return(chr, pos, ref, ale)
+        return([chr, pos, ref, ale])
 
 
 def recompare(status, ls, ils):
