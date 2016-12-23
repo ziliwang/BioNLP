@@ -42,13 +42,13 @@ def efetch(pmids, num, path):
     while True:
         try:
             html = urllib.request.urlopen(url).read().decode(
-                'unicode_escape', errors='ignore')
+                'UTF-8', errors='ignore')
         except:
             times += 1
         # give up when get the response or try more then 5 times
         if html or times > 5:
             break
-    with open(os.path.join(path, str(num) + '.xml'), 'w') as f:
+    with open(os.path.join(path, str(num) + '.xml'), 'w', encoding='UTF-8') as f:
         f.write(html)
 
 
