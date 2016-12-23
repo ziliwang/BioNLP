@@ -353,5 +353,5 @@ def recompare(status, ls, ils):
     ichr, ipos, iref, iale = ils
     if chr == ichr and str(pos) == str(ipos) and ref == iref and (
                 ale == iale) and status == 'FAILED':
-        return 'FAILED'
+        return 'PASS'
     return status
