@@ -31,10 +31,15 @@ def normalization(chr, pos, ref, ale, genome):
     input: ref_chr, (chr, pos, ref, ale)
     output: (chr, pos, ref, ale)
     """
-    chr_reg = re.search('([0-9,M,m]+)', chr)
+    chr = chr.upper()
+    chr_reg = re.search('([0-9,MXY]+)', chr)
     if chr_reg:
+        chr = chr_reg.group(1)
         if re.search(r'hg19|hg18', genome):
-            chr = 'chr' + chr_reg.group(1)
+            if chr == 'MT':
+                chr = 'chr' + 'M'
+            else:
+                chr = 'chr' + chr
     else:
         raise TypeError('Invalid vcf format: None Chromosome')
     pos_reg = re.search('(\d+)', str(pos))
