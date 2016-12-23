@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+import re
+import os
+import argparse
+
+
+FUNCTION = '''
+vcf4 format.
+'''
+INFO = '''Copyright wzlnot@gmail.com All Rights Reserved. \
+Licensed under the MIT License'''
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+                 description=FUNCTION, epilog=INFO,
+                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('-g', '--genome', metavar='PATH-TO-GENOME', type=str,
+                              default='/home/zhaok/Data/bundle/hg19/'
+                                      'ucsc.hg19.fasta',
+                              help='genome file path.[/home/zhaok/Data/bundle/'
+                                   'hg19/ucsc.hg19.fasta]')
+    parser.add_argument('vcf', type=str, help='vcf file')
+    args = parser.parse_args()
+    return args
+
+
+def normalization(chr, pos, ref, ale, genome):
+    """convert format into vcf-support format, host a reference chr which
+    is used to point the chr when chr info unavail in origin.
+    input: ref_chr, (chr, pos, ref, ale)
+    output: (chr, pos, ref, ale)
+    """
+    chr_reg = re.search('([0-9,M,m]+)', chr)
+    if chr_reg:
+        chr = 'chr' + chr_reg.group(1)
+    else:
+        raise TypeError('Invalid vcf format: None Chromosome')
+    pos_reg = re.search('(\d+)', str(pos))
+    pos_reg = re.search('(\d+)', str(pos))
+    if pos_reg:
+        if ref == '-':  # insert
+            if len(pos_reg.groups()) == 2:
+                before_pos = pos_reg.group(1)
+                before = query(before_pos, before_pos, chr, genome)
+                return(chr, before_pos, before, before + ale)
+            else:
+                # default insert after pos
+                before_pos = pos_reg.group(1)
+                before = query(before_pos, before_pos, chr, genome)
+                return(chr, before_pos, before, before + ale)
+        elif ale == '-':  # default pos is the start del site
+            before_pos = str(int(pos_reg.group(1)) - 1)
+            before = query(before_pos, before_pos, chr, genome)
+            return(chr, before_pos, before + ref, before)
+        else:
+            return(chr, pos, ref, ale)
+    else:
+        return((chr, pos, ref, ale))
+
+
+def query(start, end, chr, fasta):
+    return(''.join([i.strip('\n') for i in os.popen(
+           'samtools faidx {0}'
+           ' {1}:{2}-{3}'.format(fasta, chr, start, end)).readlines()
+           if not re.search('>', i)]).upper())
+
+if __name__ == '__main__':
+    args = parse_args()
+    with open(args.vcf, 'r') as f:
+        for line in f.readlines():
+            if re.match('#', line):
+                print(line, end='')
+                continue
+            items = line.split('\t')
+            """0, chrom; 1, pos; 3, ref; 4, alt"""
+            chr, pos, ref, ale = normalization(items[0], items[1], items[3],
+                                               items[4], args.genome)
+            print('\t'.join([items[0]] + [str(pos)] + [items[2]] + [ref, ale] +
+                  items[5:]), end='')
