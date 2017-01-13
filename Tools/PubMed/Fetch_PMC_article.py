@@ -3,10 +3,7 @@ import queue
 import threading
 import urllib.request as urlr
 import xml.etree.ElementTree as etree
-import PubMedDB
 import argparse
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 import os
 
 FUNCTION = '''
@@ -14,22 +11,6 @@ Download free full text from PMC.
 '''
 INFO = '''Copyright wzlnot@gmail.com All Rights Reserved. \
 Licensed under the MIT License'''
-TRYTIMES = 10
-
-
-def cbk(a, b, c):
-    per = 100.0 * a * b / c
-    if per > 100:
-        per = 100
-    print('%.2f%%' % per)
-
-
-def query_pmcid(DBSession):
-    query_session = DBSession()
-    pmcids = [str(i[0]) for i in query_session.query(
-                                              PubMedDB.PM_to_PMC.pmcid).all()]
-    query_session.close
-    return pmcids
 
 
 class downloader(object):
@@ -69,9 +50,9 @@ def parse_args():
     parser = argparse.ArgumentParser(
                  description=FUNCTION, epilog=INFO,
                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('-d', '--database', type=str,
-                              help='postgrel database', required=True)
-    parser.add_argument('-P', '--PATH', type=str, required=True,
+    parser.add_argument('-l', '--list', type=str,
+                              help='PMC ID list to download', required=True)
+    parser.add_argument('-P', '--PATH', type=str, default='./download',
                               help='PATH to store the full text')
     parser.add_argument('-p', '--process', type=int, default=4,
                               help='thread number')
@@ -82,11 +63,10 @@ if __name__ == '__main__':
     args = parse_args()
     if not os.path.exists(args.PATH):
         os.mkdir(args.PATH)
-    db = args.database
-    engine = create_engine('postgresql://parser:parser@localhost/' + db)
-    DBSession = sessionmaker(bind=engine)
+    with open(args.list, 'r') as f:
+        pmc_list = [i for i in f.read().split('\n') if i]
     myqueue = queue.Queue(0)
-    for i in query_pmcid(DBSession):
+    for i in pmc_list:
         s_download = downloader(i, args.PATH)
         myqueue.put_nowait(s_download)
     threads = []

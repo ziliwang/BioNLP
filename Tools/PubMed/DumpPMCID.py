@@ -37,7 +37,7 @@ def query_pmcid(query_pmid):
         i += 1
         try:
             html = urllib.request.urlopen(url).read().decode(
-                                         'unicode_escape', errors='ignore')
+                                         'utf-8', errors='ignore')
         except BaseException as e:
             print('Err:{0}.try again({1})'.format(e, i))
     result = json.loads(html)

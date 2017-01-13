@@ -53,5 +53,6 @@ if __name__ == "__main__":
     with open(args.file, "r") as infile:
         # readMeSH() yields MeSH objects, i.e. dictionaries
         for entry in readMeSH(infile):
-            print(entry['MH'][0])
-            print('\n'.join([i.split('|')[0] for i in entry['ENTRY']]))
+            print(entry)
+            # print(entry['MH'][0])
+            # print('\n'.join([i.split('|')[0] for i in entry['ENTRY']]))
