@@ -1,3 +1,33 @@
+## 环境依赖
+###### 项目结构
+```
+p
+|--- API.md             # API文档
+|--- API.pdf  
+|--- data/              # 依赖的数据文件夹
+|--- description.md
+|--- description.pdf
+|--- df/                # 8w耳聋数据夹
+|--- df.zip
+|--- lib/               # 代码文件夹
+|--- soft/
+|--- test/              # 测试文件夹
+|--- Tutorial.md
+|--- Tutorial.pdf
+```
+###### python包
+NLTK, csv, pdfminer, sqlalchemy
+## postgresql
+需求特定项目数据库，及一个账户：parser，密码：parser。账户对项目数据库具有全部权限。
+###### 创建用户
+```sql
+CREATE USER parser WITH PASSWORD 'parser';
+```
+###### 创建数据库并授权
+```sql
+CREATE DATABASE fetch_db;
+GRANT ALL PRIVILEGES ON DATABASE fetch_db to parser;
+```
 ## pubmed下载数据
 ###### 1. pubmed检索相关关键字，记录下URL中term=后的字符串(query_terms)。
 ![QQ截图20170309170759](/assets/QQ截图20170309170759.png)
