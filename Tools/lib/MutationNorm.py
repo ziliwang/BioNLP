@@ -293,13 +293,13 @@ def vcflization(txtdir):
     'vcflization'. This function batch process the txt format input, and output
     same txt file with vcflization and recompare the position, chr, ref, ale
     info.'''
-    for root, dirs, files in os.walk(txtdir):
-        for fn in files:
+    for fn in os.listdir(txtdir):
+        if os.path.isfile(os.path.join(txtdir, fn)):
             if re.search('txt$', fn):
-                if not os.path.exists(os.path.join(root, 'vcflization')):
-                    os.makedirs(os.path.join(root, 'vcflization'))
-                with open(os.path.join(root, fn), 'r') as infh:
-                    with open(os.path.join(root, 'vcflization', fn), 'w'
+                if not os.path.exists(os.path.join(txtdir, 'vcflization')):
+                    os.makedirs(os.path.join(txtdir, 'vcflization'))
+                with open(os.path.join(txtdir, fn), 'r') as infh:
+                    with open(os.path.join(txtdir, 'vcflization', fn), 'w'
                               ) as outfh:
                         for line in [i.split('\t') for i in
                                      infh.read().split('\n') if i]:
