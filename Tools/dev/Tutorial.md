@@ -10,7 +10,7 @@ p
 |--- df/                # 8w耳聋数据夹
 |--- df.zip
 |--- lib/               # 代码文件夹
-|--- soft/
+|--- soft/              # 依赖软件，EMU and standardNLP core
 |--- test/              # 测试文件夹
 |--- Tutorial.md
 |--- Tutorial.pdf
@@ -61,7 +61,7 @@ output目录输出结果文件。
 ### EMU
 对`EMU.*`文件逐个执行。
 ```
-$ perl path/to/EMUv1.0.19.pl -i 文件  
+$ perl path/to/EMUv1.0.19.pl -f 文件  
 ```
 `EMU_1.19_HUGO_*.EMU.*`为输出文件。
 ### GNormPlus
@@ -69,17 +69,19 @@ $ perl path/to/EMUv1.0.19.pl -i 文件
 ```
 $ bash GNormPlus.sh
 ```
-output目录输出结果文件。
+output目录输出结果文件。将`GNormPlusI.*`更名为`GNormPlusO.*`
 ### DNorm
 对`DNormI.*`文件，逐个执行
 ```
 $ ./RunDNorm.sh config/banner_NCBIDisease_TEST.xml data/CTD_disease.tsv output/simmatrix_NCBIDisease_e4.bin 输入 输出
 ```
+输出文件命名规则满足`*.DNormO.*`
 ## NER输出文件解析
 将所有输出文件放在一个目录下，打开ipython，执行：
 ```python
 >>> from ner import output_parser
 >>> article_obj_list = output_parser('./', 'project_name')
+注意，在ipython下，当前路径必须是在lib目录下
 ```
 ## transvar排错
 ### 产生transVar输入文件
@@ -104,3 +106,4 @@ ipython下执行：
 >>> from mutation_to_disease import topic_anno
 >>> topic_anno(article_obj_list, 'gene-mutation.csv')
 ```
+注意，须在lib目录下执行。

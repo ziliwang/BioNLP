@@ -16,7 +16,9 @@ def output_parser(outdir, prefix):
     dn_tk = outdir + '/' + prefix + '.DNormO.tk'
     dn_ab = outdir + '/' + prefix + '.DNormO.abstract'
     dn_re = outdir + '/' + prefix + '.DNormO.results'
-    gn_dir = outdir + '/' + prefix + '.GNormPlusO'
+    gn_tk = outdir + '/' + prefix + '.GNormPlusO.tk'
+    gn_ab = outdir + '/' + prefix + '.GNormPlusO.abstract'
+    gn_re = outdir + '/' + prefix + '.GNormPlusO.results'
     emu_tk = outdir + '/EMU_1.19_HUGO_' + prefix + '.EMU.tk'
     emu_ab = outdir + '/EMU_1.19_HUGO_' + prefix + '.EMU.abstract'
     emu_re = outdir + '/EMU_1.19_HUGO_' + prefix + '.EMU.results'
@@ -59,15 +61,16 @@ def output_parser(outdir, prefix):
             article_obj = found_article(pmid, articles)
             article_obj.results.add_e(entry)
     # GNormPlus
-    for pmid, entry, fn in GNormPlus_parser(gn_dir):
+    for pmid, entry in GNormPlus_parser(gn_tk):
         article_obj = found_article(pmid, articles)
-        if re.search('tk', fn):
-            article_obj.tk.add_e(entry)
-        elif re.search('abstract', fn):
-            article_obj.abstract.add_e(entry)
-        else:
+        article_obj.tk.add_e(entry)
+    for pmid, entry in GNormPlus_parser(gn_ab):
+        article_obj = found_article(pmid, articles)
+        article_obj.abstract.add_e(entry)
+    if has_results:
+        for pmid, entry in GNormPlus_parser(gn_re):
+            article_obj = found_article(pmid, articles)
             article_obj.results.add_e(entry)
-
     '''sort entry'''
     for i in articles:
         if i.abstract:  # possible no abstract
@@ -138,6 +141,40 @@ def var_parser(outputfile, emu_out):
         yield(pmid, text, mutation_entry_ls)
 
 
+def GNormPlus_parser(outputfile):
+    gnor = normalization.gene_normor('../data/hgnc_complete_set.txt')
+    with open(outputfile, 'r') as f:
+        gene_results = [i.split('\n') for i in f.read().split('\n\n') if i]
+    for article_result in gene_results:
+        text = ''
+        pmid = False
+        mutation_entry_ls = []
+        for record in article_result:
+            is_text = re.match(r'(\d+)\|a\|(.+)$', record)
+            if is_text:
+                # id, string
+                text = is_text.group(2)
+                pmid = int(is_text.group(1))
+            else:
+                pmid, start, end, string, _type, ids = record.split('\t')
+                if not re.match('gene|protein', _type, re.IGNORECASE):
+                    continue
+                pmid = int(pmid)
+                start = int(start)
+                end = int(end)
+                for did in ids.split(';'):
+                    '''one tring map to mutil-gene'''
+                    try:
+                        norm = gnor.norm(did)
+                    except KeyError as e:
+                        print('gene {0} skip: no gene in hgnc'.format(
+                                string))
+                        continue
+                    yield(pmid,
+                          Base.BioEntry(start, end, _type, string, id,
+                                        norm))
+
+
 def DNorm_parser(outputfile):
     '''output: pmid, disease_entry'''
     dnor = normalization.disease_normor('../data/CTD_diseases.tsv')
@@ -157,7 +194,7 @@ def DNorm_parser(outputfile):
                                   dnor.norm(id)))
 
 
-def GNormPlus_parser(outputdir):
+def __GNormPlus_parser_old(outputdir):
     '''output: pmid, gene_entry, article_part'''
     gnor = normalization.gene_normor('../data/hgnc_complete_set.txt')
     for root, dirs, files in os.walk(outputdir):
